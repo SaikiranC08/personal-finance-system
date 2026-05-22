@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/AuthServices.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/AuthServices.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/expense-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/expense-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/personal finance system.iml" filepath="$PROJECT_DIR$/.idea/personal finance system.iml" />
+    </modules>
+  </component>
+</project>

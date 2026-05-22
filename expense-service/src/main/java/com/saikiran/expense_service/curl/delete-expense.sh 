@@ -1,0 +1,4 @@
+#!/bin/bash
+
+curl -X DELETE http://localhost:9898/v1/deleteExpense/1 \
+  -H "x-user-id: user123"

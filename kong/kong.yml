@@ -1,0 +1,30 @@
+_format_version: "3.0"
+
+services:
+
+  - name: auth-service
+    url: http://auth-service:8080
+
+    routes:
+      - name: auth-route
+        paths:
+          - /auth
+        strip_path: true
+
+  - name: expense-service
+    url: http://expense-service:9898
+
+    routes:
+      - name: expense-route
+
+        paths:
+          - /expense
+
+        strip_path: true
+
+        plugins:
+
+          - name: custom-auth
+
+            config:
+              auth_service_url: "http://auth-service:8080/v1/validate"
