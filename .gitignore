@@ -1,1 +1,22 @@
 .env
+# Gradle
+.gradle/
+build/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Compiled files
+*.class
+
+# Generated folders
+bin/
+out/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
