@@ -64,10 +64,7 @@ public ResponseEntity AuthenticateAndGetToken(
 
         System.out.println("INSIDE AUTHENTICATED");
 
-        RefreshToken refreshToken =
-                refreshTokenService.createNewToken(
-                        authRequestDTO.getUsername()
-                );
+        RefreshToken refreshToken = refreshTokenService.replaceRefreshTokenForLogin(authRequestDTO.getUsername());
 
         return new ResponseEntity<>(
                 JwtResponseDTO.builder()

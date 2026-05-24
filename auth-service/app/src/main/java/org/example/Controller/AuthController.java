@@ -41,12 +41,17 @@ public class AuthController {
             System.out.println("Email: '" + userInfoDto.getEmail() + "'");
             System.out.println("Phone: '" + userInfoDto.getPhoneNumber() + "'");
             System.out.println("Password: " + (userInfoDto.getPassword() != null ? "[PROVIDED]" : "[NULL]"));
+
             Boolean isSigned = userDetailsService.siginupUser(userInfoDto);
+
             if(Boolean.FALSE.equals(isSigned)){
                 return new ResponseEntity<> ("Already user exists", HttpStatus.BAD_REQUEST);
             }
-            RefreshToken refreshToken = refreshTokenService.createNewToken(userInfoDto.getUserName());
+
+            RefreshToken refreshToken = refreshTokenService.createRefreshTokenForSignup(userInfoDto.getUserName());
+
             String jwtToken = jwtService.GenerateToken(userInfoDto.getUserName());
+
             return new ResponseEntity<>(JwtResponseDTO.builder().accessToken(jwtToken).
                     token(refreshToken.getToken()).build(), HttpStatus.OK);
         } catch (Exception e) {

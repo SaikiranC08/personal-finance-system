@@ -23,28 +23,39 @@ public class RefreshTokenService {
     @Autowired
     UserInfoRepository userInfoRepository;
 
+    private static final long REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000L; // 7 days
+
+
+    // ✅ SIGNUP — User is new, directly create and insert refresh token, no DB lookup needed
     @Transactional
-    public RefreshToken createNewToken(String username) {
+    public RefreshToken createRefreshTokenForSignup(String username) {
 
-        UserInfo userInfoExtracted =
-                userInfoRepository.findByUserName(username);
+        UserInfo userInfo = userInfoRepository.findByUserName(username);
 
-        RefreshToken refreshToken =
-                refreshTokenRepository
-                        .findByUserInfo(userInfoExtracted)
-                        .orElse(new RefreshToken());
+        RefreshToken refreshToken = new RefreshToken(); // Always fresh, no orElse needed
 
-        refreshToken.setUserInfo(userInfoExtracted);
+        refreshToken.setUserInfo(userInfo);
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(Instant.now().plusMillis(REFRESH_TOKEN_EXPIRY_MS));
 
-        refreshToken.setToken(
-                UUID.randomUUID().toString()
-        );
+        return refreshTokenRepository.save(refreshToken); // Always INSERT
+    }
 
-        refreshToken.setExpiryDate(
-                Instant.now().plusMillis(600000)
-        );
+    @Transactional
+    public RefreshToken replaceRefreshTokenForLogin(String username) {
 
-        return refreshTokenRepository.save(refreshToken);
+        UserInfo userInfo = userInfoRepository.findByUserName(username);
+
+        // For login, token MUST exist in DB already, find it and overwrite
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByUserInfo(userInfo)
+                .orElse(new RefreshToken()); // Edge case: first-ever login, no token yet
+
+        refreshToken.setUserInfo(userInfo);
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(Instant.now().plusMillis(REFRESH_TOKEN_EXPIRY_MS));
+
+        return refreshTokenRepository.save(refreshToken); // UPDATE if found, INSERT if edge case
     }
 
     public RefreshToken verifyExpiration(RefreshToken refreshToken){
