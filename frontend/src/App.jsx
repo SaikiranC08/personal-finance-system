@@ -1,11 +1,19 @@
 import Signup from "./features/auth/pages/Signup";
 import Login from "./features/auth/pages/Login";
-import Home from "./features/auth/pages/Home";
 import Landing from "./features/auth/pages/Landing";
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+
+import DashboardPage from "./features/dashboard/pages/DashboardPage";
+import ExpensesPage from "./features/expenses/pages/ExpensesPage";
+import FundsPage from "./features/funds/pages/FundsPage";
+import AnalyticsPage from "./features/analytics/pages/AnalyticsPage";
+import ReportsPage from "./features/reports/pages/ReportsPage";
+
 import PublicRoute from "./features/auth/routes/PublicRoute";
 import ProtectedRoute from "./features/auth/routes/ProtectedRoute";
 
+import DashboardLayout from "./shared/components/layout/DashboardLayout";
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
 
@@ -15,13 +23,41 @@ function App() {
 
             <Routes>
 
+                {/* Public Routes */}
                 <Route path="/" element={<Landing />} />
 
-                <Route path="/login" element={<PublicRoute><Login /></PublicRoute> } />
+                <Route
+                    path="/login"
+                    element={
+                        <PublicRoute>
+                            <Login />
+                        </PublicRoute>
+                    }
+                />
 
-                <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute> } />
+                <Route
+                    path="/signup"
+                    element={
+                        <PublicRoute>
+                            <Signup />
+                        </PublicRoute>
+                    }
+                />
 
-                <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                {/* Protected Routes */}
+                <Route element={<ProtectedRoute> <DashboardLayout /> </ProtectedRoute>}>
+
+                    <Route path="/home" element={<DashboardPage />} />
+
+                    <Route path="/expenses" element={<ExpensesPage />} />
+
+                    <Route path="/funds" element={<FundsPage />} />
+
+                    <Route path="/analytics" element={<AnalyticsPage />} />
+
+                    <Route path="/reports" element={<ReportsPage />} />
+
+                </Route>
 
             </Routes>
 
@@ -29,4 +65,4 @@ function App() {
     );
 }
 
-export default App
+export default App;
