@@ -18,13 +18,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public List<Category> getCategories(String userId) {
 
-        return categoryRepository.findBySourceOrUserId(
-                CategorySource.SYSTEM,
-                userId
-        );
-    }
 
     @Transactional
     public CategoryResponse createCategory(

@@ -184,5 +184,9 @@ public class FundService {
         );
     }
 
+    public List<String> getOwnerName(String userId){
+        return fundRepository.findDistinctOwnerNames(userId);
+    }
+
 }
 

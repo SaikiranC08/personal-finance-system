@@ -27,6 +27,12 @@ public class FundController {
         return ResponseEntity.ok(funds);
     }
 
+    @GetMapping("/ownerName")
+    public ResponseEntity<List<String>> getOwnerName(@RequestHeader("x-user-id") String userId){
+        return ResponseEntity.ok(fundService.getOwnerName(userId));
+    }
+
+
     @PostMapping
     public ResponseEntity<FundResponse> addFund(
             @RequestHeader("x-user-id") String userId,

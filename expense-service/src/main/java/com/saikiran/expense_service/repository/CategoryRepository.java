@@ -2,6 +2,7 @@ package com.saikiran.expense_service.repository;
 
 import com.saikiran.expense_service.entities.Category;
 import com.saikiran.expense_service.enums.CategorySource;
+import com.saikiran.expense_service.responseDTO.CategoryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

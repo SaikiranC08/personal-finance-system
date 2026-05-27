@@ -193,6 +193,12 @@ public class ExpenseService {
     }
 
 
+    public ExpenseResponse getExpenseByExpenseId(String userId,Long expenseId){
+       ExpenseInfo expenseInfo = expenseRepository.findExpenseInfoByExpenseIdAndUserId(expenseId,userId);
+       return expenseMapper.toExpenseResponse(expenseInfo);
+    }
+
+
 
     //delete expense
     @Transactional

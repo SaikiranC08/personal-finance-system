@@ -6,7 +6,8 @@ public enum DefaultCategory {
     TRAVEL("Travel"),
     SHOPPING("Shopping"),
     HEALTH("Health"),
-    ENTERTAINMENT("Entertainment");
+    ENTERTAINMENT("Entertainment"),
+    OTHER("Other");
 
     private final String displayName;
 

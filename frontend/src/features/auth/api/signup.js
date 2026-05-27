@@ -1,9 +1,9 @@
 export async function signup(formData) {
     console.log("API function reached", formData);
 
-    const baseUrl =  `${import.meta.env.VITE_BASE_URL}/auth/v1/signup` || "http://localhost:8000/auth/v1/signup";
+    const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:8000";
 
-    const response = await fetch(baseUrl, {
+    const response = await fetch(`${baseUrl}/auth/v1/signup`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -24,6 +24,11 @@ export async function signup(formData) {
         localStorage.setItem(
             "token",
             data.token
+        );
+
+        localStorage.setItem(
+            "username",
+            formData.userName
         );
 
     } else {

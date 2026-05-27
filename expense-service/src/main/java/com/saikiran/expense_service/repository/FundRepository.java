@@ -86,4 +86,14 @@ public interface FundRepository extends CrudRepository<FundInfo, Long> {
             String userId,
             String ownerType
     );
+
+
+    @Query("""
+    SELECT DISTINCT f.ownerName
+    FROM FundInfo f
+    WHERE f.userId = :userId
+""")
+    List<String> findDistinctOwnerNames(
+            @Param("userId") String userId
+    );
 }

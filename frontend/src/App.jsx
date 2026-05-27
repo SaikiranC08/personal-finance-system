@@ -12,6 +12,9 @@ import PublicRoute from "./features/auth/routes/PublicRoute";
 import ProtectedRoute from "./features/auth/routes/ProtectedRoute";
 
 import DashboardLayout from "./shared/components/layout/DashboardLayout";
+import CreateExpensePage from "./features/expenses/pages/CreateExpensePage";
+import EditExpensePage
+from "./features/expenses/pages/EditExpensePage";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -50,6 +53,8 @@ function App() {
                     <Route path="/home" element={<DashboardPage />} />
 
                     <Route path="/expenses" element={<ExpensesPage />} />
+                    <Route path="/expenses/create" element={<CreateExpensePage />}/>
+                    <Route path="/expenses/edit/:expenseId" element={<EditExpensePage />} />
 
                     <Route path="/funds" element={<FundsPage />} />
 

@@ -54,6 +54,12 @@ public class ExpenseController {
     }
 
 
+    @GetMapping("/expenses/{expenseId}")
+    public ResponseEntity<ExpenseResponse> getExpensesByExpenseId(@RequestHeader("x-user-id") String userId,@PathVariable Long expenseId){
+        ExpenseResponse response = expenseService.getExpenseByExpenseId(userId,expenseId);
+        return ResponseEntity.ok(response);
+    }
+
 
 
 

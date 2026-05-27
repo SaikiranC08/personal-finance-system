@@ -1,10 +1,10 @@
 export async function login(formData){
     console.log("Login API function reached", formData);
 
-    const baseUrl = `${import.meta.env.VITE_BASE_URL}/auth/v1/login` || "http://localhost:8000/auth/v1/login";
+    const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:8000";
 
 
-    const response = await fetch(baseUrl,{
+    const response = await fetch(`${baseUrl}/auth/v1/login`,{
         method:"POST",
         headers:{
             "Content-Type":"application/json"
@@ -25,6 +25,11 @@ export async function login(formData){
         localStorage.setItem(
             "token",
             data.token
+        );
+
+        localStorage.setItem(
+            "username",
+            formData.username
         );}
         else{
             throw new Error("login failed" + response.statusText);
