@@ -1,4 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
+import {
+  createApiError
+} from "../../../utils/session";
 
 export async function updateExpense(
   expenseId,
@@ -57,8 +60,9 @@ export async function updateExpense(
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to update expense"
+    throw createApiError(
+      "Failed to update expense",
+      response
     );
   }
 

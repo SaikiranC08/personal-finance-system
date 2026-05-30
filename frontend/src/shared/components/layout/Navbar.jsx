@@ -53,7 +53,7 @@ function Navbar() {
 
             <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4">
 
-                <div className="min-w-0">
+                <div className="min-w-0 pl-12 md:pl-0">
                     <h1 className="truncate text-2xl font-semibold tracking-normal text-slate-950">
                         {title}
                     </h1>

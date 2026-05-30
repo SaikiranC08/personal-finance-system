@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getDashboard() {
 
   const baseUrl =
@@ -20,8 +24,9 @@ export async function getDashboard() {
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to fetch dashboard data"
+    throw createApiError(
+      "Failed to fetch dashboard data",
+      response
     );
   }
 

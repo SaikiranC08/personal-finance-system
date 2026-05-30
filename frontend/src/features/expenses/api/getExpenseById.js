@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getExpenseById(expenseId) {
 
   const baseUrl =
@@ -21,8 +25,9 @@ export async function getExpenseById(expenseId) {
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to fetch expense"
+    throw createApiError(
+      "Failed to fetch expense",
+      response
     );
   }
 

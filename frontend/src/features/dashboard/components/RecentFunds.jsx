@@ -1,3 +1,8 @@
+import {
+  WalletCards
+} from "lucide-react";
+import EmptyState from "../../../shared/components/states/EmptyState";
+
 function RecentFunds({ funds }) {
 
   const formatCurrency = (amount) =>
@@ -29,9 +34,12 @@ function RecentFunds({ funds }) {
 
       {funds.length === 0 ? (
 
-        <div className="py-10 text-center text-gray-500">
-          No recent funds found.
-        </div>
+        <EmptyState
+          icon={WalletCards}
+          title="No funds available"
+          description="Create your first shared fund to track entrusted money."
+          compact
+        />
 
       ) : (
 

@@ -10,6 +10,7 @@ import {
   Download,
   FileText,
   LoaderCircle,
+  ReceiptText,
   ShieldCheck,
   Wallet
 } from "lucide-react";
@@ -29,6 +30,15 @@ import {
 import {
   downloadPdfFromResponse
 } from "../utils/downloadPdf";
+import {
+  useToast
+} from "../../../shared/components/feedback/toastContext";
+import EmptyState from "../../../shared/components/states/EmptyState";
+import {
+  getFriendlyErrorMessage,
+  handleSessionExpired,
+  isUnauthorizedError
+} from "../../../utils/session";
 
 function ReportsPage() {
 
@@ -71,6 +81,12 @@ function ReportsPage() {
   const [message, setMessage] =
     useState(null);
 
+  const [hasGeneratedReport, setHasGeneratedReport] =
+    useState(false);
+
+  const toast =
+    useToast();
+
   useEffect(() => {
 
     async function fetchFunds() {
@@ -92,10 +108,23 @@ function ReportsPage() {
 
         console.error(error);
 
+        if (isUnauthorizedError(error)) {
+          handleSessionExpired(toast);
+          return;
+        }
+
+        const errorMessage =
+          getFriendlyErrorMessage(
+            error,
+            "Failed to load funds for reports"
+          );
+
         setMessage({
           type: "error",
-          text: "Unable to load funds for reports."
+          text: errorMessage
         });
+
+        toast.error(errorMessage);
 
       } finally {
 
@@ -105,7 +134,10 @@ function ReportsPage() {
 
     fetchFunds();
 
-  }, []);
+  }, [toast]);
+
+  const isExporting =
+    expenseExporting || fundExporting;
 
   const selectedFund =
     useMemo(
@@ -126,6 +158,8 @@ function ReportsPage() {
         text: "Choose both start and end dates."
       });
 
+      toast.error("Choose both start and end dates.");
+
       return;
     }
 
@@ -135,6 +169,8 @@ function ReportsPage() {
         type: "error",
         text: "Start date cannot be after end date."
       });
+
+      toast.error("Start date cannot be after end date.");
 
       return;
     }
@@ -155,14 +191,30 @@ function ReportsPage() {
         `expense-report-${startDate}-to-${endDate}.pdf`
       );
 
+      setHasGeneratedReport(true);
+      toast.success("PDF downloaded");
+
     } catch (error) {
 
       console.error(error);
 
+      if (isUnauthorizedError(error)) {
+        handleSessionExpired(toast);
+        return;
+      }
+
+      const errorMessage =
+        getFriendlyErrorMessage(
+          error,
+          "Unable to generate PDF"
+        );
+
       setMessage({
         type: "error",
-        text: "Expense report export failed. Please try again."
+        text: errorMessage
       });
+
+      toast.error(errorMessage);
 
     } finally {
 
@@ -178,6 +230,8 @@ function ReportsPage() {
         type: "error",
         text: "Select a fund before exporting."
       });
+
+      toast.error("Select a fund before exporting.");
 
       return;
     }
@@ -197,14 +251,30 @@ function ReportsPage() {
         `fund-utilization-${selectedFundId}.pdf`
       );
 
+      setHasGeneratedReport(true);
+      toast.success("PDF downloaded");
+
     } catch (error) {
 
       console.error(error);
 
+      if (isUnauthorizedError(error)) {
+        handleSessionExpired(toast);
+        return;
+      }
+
+      const errorMessage =
+        getFriendlyErrorMessage(
+          error,
+          "Unable to generate PDF"
+        );
+
       setMessage({
         type: "error",
-        text: "Fund utilization export failed. Please try again."
+        text: errorMessage
       });
+
+      toast.error(errorMessage);
 
     } finally {
 
@@ -332,17 +402,20 @@ function ReportsPage() {
               label="Start date"
               value={startDate}
               onChange={setStartDate}
+              disabled={isExporting}
             />
 
             <DateField
               label="End date"
               value={endDate}
               onChange={setEndDate}
+              disabled={isExporting}
             />
 
             <ExportButton
               loading={expenseExporting}
-              disabled={expenseExporting}
+              disabled={isExporting}
+              loadingLabel="Generating PDF..."
               onClick={handleExpenseExport}
             >
               Export PDF
@@ -395,7 +468,7 @@ function ReportsPage() {
                 onChange={(event) =>
                   setSelectedFundId(event.target.value)
                 }
-                disabled={fundsLoading || fundExporting}
+              disabled={fundsLoading || fundExporting}
                 className="
                   h-12 w-full
                   rounded-2xl
@@ -438,10 +511,11 @@ function ReportsPage() {
             <ExportButton
               loading={fundExporting}
               disabled={
-                fundExporting ||
+                isExporting ||
                 fundsLoading ||
                 !selectedFundId
               }
+              loadingLabel="Generating PDF..."
               onClick={handleFundExport}
             >
               Export PDF
@@ -453,7 +527,27 @@ function ReportsPage() {
             <FundPreview fund={selectedFund} />
           )}
 
+          {!fundsLoading && funds.length === 0 && (
+            <div className="mt-6">
+              <EmptyState
+                icon={Wallet}
+                title="No funds available"
+                description="Create your first shared fund before exporting utilization reports."
+                compact
+              />
+            </div>
+          )}
+
         </section>
+
+        {!hasGeneratedReport && (
+          <EmptyState
+            icon={ReceiptText}
+            title="No reports generated yet"
+            description="Generate your first financial report."
+            compact
+          />
+        )}
 
       </div>
 
@@ -517,7 +611,8 @@ function CardHeader({
 function DateField({
   label,
   value,
-  onChange
+  onChange,
+  disabled
 }) {
 
   return (
@@ -549,6 +644,7 @@ function DateField({
           onChange={(event) =>
             onChange(event.target.value)
           }
+          disabled={disabled}
           className="
             h-12 w-full
             rounded-2xl
@@ -563,6 +659,9 @@ function DateField({
             focus:border-emerald-700
             focus:ring-4
             focus:ring-emerald-100
+            disabled:cursor-not-allowed
+            disabled:bg-slate-50
+            disabled:text-slate-400
           "
         />
       </div>
@@ -573,6 +672,7 @@ function DateField({
 function ExportButton({
   loading,
   disabled,
+  loadingLabel = "Loading...",
   onClick,
   children
 }) {
@@ -610,7 +710,7 @@ function ExportButton({
       ) : (
         <Download size={18} />
       )}
-      {children}
+      {loading ? loadingLabel : children}
     </button>
   );
 }

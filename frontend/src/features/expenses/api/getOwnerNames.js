@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getOwnerNames() {
 
   const baseUrl =
@@ -21,8 +25,9 @@ export async function getOwnerNames() {
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to fetch owner names"
+    throw createApiError(
+      "Failed to fetch owner names",
+      response
     );
   }
 

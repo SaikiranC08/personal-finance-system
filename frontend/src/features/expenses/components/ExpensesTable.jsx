@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useCallback,
   useState
 } from "react";
 import { getExpenses } from "../api/getExpenses";
@@ -13,6 +14,8 @@ import {
   Pencil,
   Trash2,
   Calendar,
+  Plus,
+  ReceiptText,
   X,
   UtensilsCrossed,
   Plane,
@@ -21,6 +24,20 @@ import {
   Film,
   Circle
 } from "lucide-react";
+import {
+  useToast
+} from "../../../shared/components/feedback/toastContext";
+import EmptyState from "../../../shared/components/states/EmptyState";
+import ErrorState from "../../../shared/components/states/ErrorState";
+import Spinner from "../../../shared/components/states/Spinner";
+import {
+  TableSkeleton
+} from "../../../shared/components/states/Skeleton";
+import {
+  getFriendlyErrorMessage,
+  handleSessionExpired,
+  isUnauthorizedError
+} from "../../../utils/session";
 
 const dateFilterOptions = [
   {
@@ -66,17 +83,43 @@ function ExpenseTable() {
   const [filterError, setFilterError] =
     useState("");
 
+  const [initialLoading, setInitialLoading] =
+    useState(true);
+
+  const [pageLoading, setPageLoading] =
+    useState(false);
+
+  const [loadError, setLoadError] =
+    useState("");
+
+  const [deletingExpenseId, setDeletingExpenseId] =
+    useState(null);
+
   const navigate = useNavigate();
 
-  async function fetchExpenses(page = 0) {
+  const toast =
+    useToast();
+
+  const fetchExpenses = useCallback(async function fetchExpenses(
+    page = 0,
+    initial = false
+  ) {
+
+    if (initial) {
+      setInitialLoading(true);
+    } else {
+      setPageLoading(true);
+    }
+
+    setLoadError("");
 
     try {
 
       const response = await getExpenses(page);
 
-      setExpenses(response.expenses);
+      setExpenses(response.expenses || []);
 
-      setPagination(response.pagination);
+      setPagination(response.pagination || {});
 
       setCurrentPage(
         response.pagination?.page ?? page
@@ -86,34 +129,41 @@ function ExpenseTable() {
 
       console.error(error);
 
+      if (isUnauthorizedError(error)) {
+        handleSessionExpired(toast);
+        return;
+      }
+
+      const message =
+        getFriendlyErrorMessage(
+          error,
+          "Failed to fetch expenses"
+        );
+
+      setLoadError(message);
+      toast.error(message);
+
+    } finally {
+
+      if (initial) {
+        setInitialLoading(false);
+      } else {
+        setPageLoading(false);
+      }
+
     }
-  }
+  }, [toast]);
 
   useEffect(() => {
 
     async function fetchInitialExpenses() {
 
-      try {
-
-        const response = await getExpenses(0);
-
-        setExpenses(response.expenses);
-
-        setPagination(response.pagination);
-
-        setCurrentPage(
-          response.pagination?.page ?? 0
-        );
-
-      } catch (error) {
-
-        console.error(error);
-      }
+      await fetchExpenses(0, true);
     }
 
     fetchInitialExpenses();
 
-  }, []);
+  }, [fetchExpenses]);
 
   async function applyDateFilter({
     range,
@@ -133,12 +183,25 @@ function ExpenseTable() {
           endDate: nextEndDate
         });
 
-      setExpenses(filteredExpenses);
+      setExpenses(filteredExpenses || []);
 
     } catch (error) {
 
       console.error(error);
-      setFilterError("Could not load filtered expenses.");
+
+      if (isUnauthorizedError(error)) {
+        handleSessionExpired(toast);
+        return;
+      }
+
+      const message =
+        getFriendlyErrorMessage(
+          error,
+          "Could not load filtered expenses."
+        );
+
+      setFilterError(message);
+      toast.error(message);
 
     } finally {
 
@@ -217,7 +280,8 @@ function ExpenseTable() {
 
     if (
       activeFilter ||
-      !pagination.hasPrevious
+      !pagination.hasPrevious ||
+      pageLoading
     ) {
 
       return;
@@ -232,7 +296,8 @@ function ExpenseTable() {
 
     if (
       activeFilter ||
-      !pagination.hasNext
+      !pagination.hasNext ||
+      pageLoading
     ) {
 
       return;
@@ -259,6 +324,11 @@ function ExpenseTable() {
 
   const hasNextPage =
     Boolean(pagination.hasNext);
+
+  const isTableLoading =
+    initialLoading ||
+    pageLoading ||
+    isFiltering;
 
   const getCategoryConfig = (category) => {
 
@@ -320,6 +390,8 @@ function ExpenseTable() {
 
   try {
 
+    setDeletingExpenseId(expenseId);
+
     await deleteExpense(
       expenseId
     );
@@ -334,9 +406,26 @@ function ExpenseTable() {
       )
     );
 
+    toast.success("Expense deleted successfully");
+
   } catch (error) {
 
     console.error(error);
+
+    if (isUnauthorizedError(error)) {
+      handleSessionExpired(toast);
+      return;
+    }
+
+    toast.error(
+      getFriendlyErrorMessage(
+        error,
+        "Failed to delete expense"
+      )
+    );
+  } finally {
+
+    setDeletingExpenseId(null);
   }
 }
 
@@ -371,6 +460,7 @@ function ExpenseTable() {
     transition
   "
 >
+  <Plus size={16} />
   Add Expense
 </button>
 
@@ -398,12 +488,15 @@ function ExpenseTable() {
             <select
               value={activeFilter}
               onChange={handleFilterChange}
+              disabled={isTableLoading}
               className="
                 bg-transparent
                 outline-none
                 text-sm
                 font-medium
                 text-gray-700
+                disabled:cursor-not-allowed
+                disabled:text-gray-400
               "
             >
               <option value="">
@@ -429,6 +522,7 @@ function ExpenseTable() {
             <button
               type="button"
               onClick={clearDateFilter}
+              disabled={isTableLoading}
               className="
                 flex items-center gap-2
                 rounded-xl
@@ -439,6 +533,8 @@ function ExpenseTable() {
                 text-gray-500
                 hover:bg-gray-50
                 transition
+                disabled:cursor-not-allowed
+                disabled:opacity-50
               "
             >
               <X size={15} />
@@ -478,9 +574,25 @@ function ExpenseTable() {
         </div>
       )}
 
+      {loadError && (
+        <div className="mb-5">
+          <ErrorState
+            title="Failed to fetch expenses"
+            description={loadError}
+            compact
+          />
+        </div>
+      )}
+
       {/* Table */}
 
       <div className="overflow-x-auto">
+
+        {isTableLoading ? (
+
+          <TableSkeleton rows={5} columns={6} />
+
+        ) : (
 
         <table className="w-full border-separate border-spacing-y-2">
 
@@ -541,9 +653,20 @@ function ExpenseTable() {
                     text-gray-500
                   "
                 >
-                  {isDateFilterActive
-                    ? "No transactions found for selected date range"
-                    : "No transactions found"}
+                  <EmptyState
+                    icon={ReceiptText}
+                    title={
+                      isDateFilterActive
+                        ? "No filtered results"
+                        : "No expenses found"
+                    }
+                    description={
+                      isDateFilterActive
+                        ? "Try adjusting the selected date range."
+                        : "Start tracking your spending activity."
+                    }
+                    compact
+                  />
                 </td>
 
               </tr>
@@ -662,6 +785,7 @@ function ExpenseTable() {
                         hover:bg-gray-200
                         transition
                       "
+                      aria-label="Edit expense"
                     >
                       <Pencil
                         size={16}
@@ -675,18 +799,26 @@ function ExpenseTable() {
                           expense.expenseId
                         )
                       }
+                      disabled={deletingExpenseId === expense.expenseId}
                       className="
                         p-2
                         rounded-lg
                         bg-red-100
                         hover:bg-red-200
                         transition
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
                       "
+                      aria-label="Delete expense"
                     >
-                      <Trash2
-                        size={16}
-                        className="text-red-500"
-                      />
+                      {deletingExpenseId === expense.expenseId ? (
+                        <Spinner className="size-4 text-red-500" />
+                      ) : (
+                        <Trash2
+                          size={16}
+                          className="text-red-500"
+                        />
+                      )}
                     </button>
 
                   </div>
@@ -700,6 +832,8 @@ function ExpenseTable() {
           </tbody>
 
         </table>
+
+        )}
 
       </div>
 
@@ -736,7 +870,7 @@ function ExpenseTable() {
             <button
               type="button"
               onClick={goToPreviousPage}
-              disabled={!hasPreviousPage}
+              disabled={!hasPreviousPage || pageLoading}
               className={`
                 px-4 py-2
                 rounded-xl
@@ -750,7 +884,7 @@ function ExpenseTable() {
                 }
               `}
             >
-              Previous
+              {pageLoading ? "Fetching..." : "Previous"}
             </button>
 
             <button
@@ -768,7 +902,7 @@ function ExpenseTable() {
             <button
               type="button"
               onClick={goToNextPage}
-              disabled={!hasNextPage}
+              disabled={!hasNextPage || pageLoading}
               className={`
                 px-4 py-2
                 rounded-xl
@@ -782,7 +916,7 @@ function ExpenseTable() {
                 }
               `}
             >
-              Next
+              {pageLoading ? "Fetching..." : "Next"}
             </button>
 
           </div>

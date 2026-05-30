@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getFundExpenses(
   fundId
 ) {
@@ -27,8 +31,9 @@ export async function getFundExpenses(
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to fetch expenses"
+    throw createApiError(
+      "Failed to fetch expenses",
+      response
     );
   }
 

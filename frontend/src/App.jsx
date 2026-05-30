@@ -1,5 +1,3 @@
-import Signup from "./features/auth/pages/Signup";
-import Login from "./features/auth/pages/Login";
 import Landing from "./features/auth/pages/Landing";
 
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
@@ -7,6 +5,7 @@ import ExpensesPage from "./features/expenses/pages/ExpensesPage";
 import FundsPage from "./features/funds/pages/FundsPage";
 import AnalyticsPage from "./features/analytics/pages/AnalyticsPage";
 import ReportsPage from "./features/reports/pages/ReportsPage";
+import SettingsPage from "./features/settings/pages/SettingsPage";
 
 import PublicRoute from "./features/auth/routes/PublicRoute";
 import ProtectedRoute from "./features/auth/routes/ProtectedRoute";
@@ -23,10 +22,15 @@ import FundDetailsPage
 from "./features/funds/pages/FundDetailsPage";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+    ToastProvider
+} from "./shared/components/feedback/ToastProvider";
 
 function App() {
 
     return (
+
+        <ToastProvider>
 
         <BrowserRouter>
 
@@ -39,7 +43,7 @@ function App() {
                     path="/login"
                     element={
                         <PublicRoute>
-                            <Login />
+                            <Landing />
                         </PublicRoute>
                     }
                 />
@@ -48,7 +52,7 @@ function App() {
                     path="/signup"
                     element={
                         <PublicRoute>
-                            <Signup />
+                            <Landing />
                         </PublicRoute>
                     }
                 />
@@ -81,11 +85,15 @@ function App() {
 
                     <Route path="/reports" element={<ReportsPage />} />
 
+                    <Route path="/settings" element={<SettingsPage />} />
+
                 </Route>
 
             </Routes>
 
         </BrowserRouter>
+
+        </ToastProvider>
     );
 }
 

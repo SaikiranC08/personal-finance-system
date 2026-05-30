@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function deleteFund(
   fundId
 ) {
@@ -27,8 +31,9 @@ export async function deleteFund(
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to delete fund"
+    throw createApiError(
+      "Failed to delete fund",
+      response
     );
   }
 }

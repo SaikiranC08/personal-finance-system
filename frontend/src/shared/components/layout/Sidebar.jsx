@@ -5,6 +5,7 @@ import {
     LayoutDashboard,
     LogOut,
     ReceiptText,
+    Shield,
     Wallet,
     WalletCards
 } from "lucide-react";
@@ -34,6 +35,11 @@ const navigationItems = [
         to: "/reports",
         label: "Reports",
         icon: FileText
+    },
+    {
+        to: "/settings",
+        label: "Settings",
+        icon: Shield
     }
 ];
 

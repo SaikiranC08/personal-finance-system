@@ -1,4 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
+import {
+  createApiError
+} from "../../../utils/session";
 
 function getTokenPayload(token) {
   try {
@@ -86,7 +89,10 @@ export async function createExpense(expenseData) {
 
   if (!response.ok) {
 
-    throw new Error("Failed to create expense");
+    throw createApiError(
+      "Failed to create expense",
+      response
+    );
   }
 
   return await response.json();

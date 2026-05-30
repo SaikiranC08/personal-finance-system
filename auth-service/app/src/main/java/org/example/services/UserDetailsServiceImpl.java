@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.example.entities.UserInfo;
 import org.example.model.UserInfoDto;
 import org.example.repository.UserInfoRepository;
+import org.example.request.ChangePasswordRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -86,9 +87,60 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         String userId = UUID.randomUUID().toString();
         userInfoRepository.save(new UserInfo(userId,userInfoDto.getUserName(),userInfoDto.getPassword(),
                 userInfoDto.getEmail(), userInfoDto.getPhoneNumber(), new HashSet<>()));
-        // Sending to kafka
+
 
         return true;
     }
+
+    // AuthService.java
+
+    public String changePassword(ChangePasswordRequest request) {
+
+        UserInfo user =
+                userInfoRepository.findByUserName(
+                        request.getUsername()
+                );
+
+        if (user == null) {
+
+            throw new RuntimeException(
+                    "User not found"
+            );
+        }
+
+        boolean matches =
+                passwordEncoder.matches(
+                        request.getOldPassword(),
+                        user.getPassword()
+                );
+
+        if (!matches) {
+
+            throw new RuntimeException(
+                    "Current password is incorrect"
+            );
+        }
+
+        // PASSWORD VALIDATION
+
+        if (request.getNewPassword() == null
+                || request.getNewPassword().length() < 6) {
+
+            throw new RuntimeException(
+                    "Password must be at least 6 characters"
+            );
+        }
+
+        user.setPassword(
+                passwordEncoder.encode(
+                        request.getNewPassword()
+                )
+        );
+
+        userInfoRepository.save(user);
+
+        return "Password updated successfully";
+    }
+
 
 }

@@ -1,36 +1,43 @@
+import {
+  Plus,
+  WalletCards
+} from "lucide-react";
+import EmptyState from "../../../shared/components/states/EmptyState";
 import FundCard from "./FundCard";
 
-function FundsGrid({ funds }) {
+function FundsGrid({
+  funds,
+  onCreateFund
+}) {
 
   if (funds.length === 0) {
 
     return (
 
-      <div
-        className="
-          bg-white
-          rounded-3xl
-          p-10
-          text-center
-          border border-gray-100
-        "
-      >
-
-        <h2
-          className="
-            text-xl
-            font-semibold
-            mb-2
-          "
-        >
-          No Funds Found
-        </h2>
-
-        <p className="text-gray-500">
-          Create your first fund.
-        </p>
-
-      </div>
+      <EmptyState
+        icon={WalletCards}
+        title="No funds available"
+        description="Create your first shared fund."
+        action={
+          onCreateFund && (
+            <button
+              type="button"
+              onClick={onCreateFund}
+              className="
+                inline-flex items-center gap-2
+                rounded-xl bg-[#0f3d2e]
+                px-4 py-2.5
+                text-sm font-semibold
+                text-white
+                transition hover:bg-[#0b3024]
+              "
+            >
+              <Plus size={16} />
+              Create Fund
+            </button>
+          )
+        }
+      />
     );
   }
 

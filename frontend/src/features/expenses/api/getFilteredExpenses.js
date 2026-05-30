@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getFilteredExpenses({
   range,
   startDate,
@@ -35,7 +39,10 @@ export async function getFilteredExpenses({
 
   if (!response.ok) {
 
-    throw new Error("Failed to fetch filtered expenses");
+    throw createApiError(
+      "Failed to fetch filtered expenses",
+      response
+    );
   }
 
   const data =

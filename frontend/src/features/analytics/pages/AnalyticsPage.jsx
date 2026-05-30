@@ -33,6 +33,18 @@ from "../components/MonthlyTrendChart";
 
 import TopCategories
 from "../components/TopCategories";
+import {
+  useToast
+} from "../../../shared/components/feedback/toastContext";
+import ErrorState from "../../../shared/components/states/ErrorState";
+import {
+  CardSkeleton
+} from "../../../shared/components/states/Skeleton";
+import {
+  getFriendlyErrorMessage,
+  handleSessionExpired,
+  isUnauthorizedError
+} from "../../../utils/session";
 
 function AnalyticsPage() {
 
@@ -50,6 +62,12 @@ function AnalyticsPage() {
 
   const [loading, setLoading] =
     useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const toast =
+    useToast();
 
   useEffect(() => {
 
@@ -78,6 +96,20 @@ function AnalyticsPage() {
 
         console.error(error);
 
+        if (isUnauthorizedError(error)) {
+          handleSessionExpired(toast);
+          return;
+        }
+
+        const message =
+          getFriendlyErrorMessage(
+            error,
+            "Failed to load analytics"
+          );
+
+        setError(message);
+        toast.error(message);
+
       } finally {
 
         setLoading(false);
@@ -86,15 +118,13 @@ function AnalyticsPage() {
 
     fetchAnalytics();
 
-  }, []);
+  }, [toast]);
 
   if (loading) {
 
     return (
 
-      <div className="p-8">
-        Loading analytics...
-      </div>
+      <AnalyticsSkeleton />
     );
   }
 
@@ -146,6 +176,7 @@ function AnalyticsPage() {
           </div>
 
           <button
+            disabled={loading}
             className="
               bg-white
               border border-gray-100
@@ -156,12 +187,22 @@ function AnalyticsPage() {
               font-medium
               text-gray-700
               w-fit
+              disabled:cursor-not-allowed
+              disabled:opacity-60
             "
           >
             This Month
           </button>
 
         </div>
+
+        {error && (
+          <ErrorState
+            title="Failed to load analytics"
+            description={error}
+            compact
+          />
+        )}
 
         <AnalyticsStats
           monthlyAnalytics={monthlyAnalytics}
@@ -208,6 +249,39 @@ function AnalyticsPage() {
 
       </div>
 
+    </div>
+  );
+}
+
+function AnalyticsSkeleton() {
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-3">
+            <div className="h-9 w-44 animate-pulse rounded-xl bg-slate-200" />
+            <div className="h-5 w-80 max-w-full animate-pulse rounded-xl bg-slate-200" />
+          </div>
+          <div className="hidden h-11 w-32 animate-pulse rounded-2xl bg-slate-200 sm:block" />
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <CardSkeleton key={index} lines={1} />
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <CardSkeleton lines={6} />
+          <CardSkeleton lines={6} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <CardSkeleton lines={5} />
+          <CardSkeleton lines={5} />
+        </div>
+      </div>
     </div>
   );
 }

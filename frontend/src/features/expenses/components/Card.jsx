@@ -1,5 +1,3 @@
-import React from 'react'
-
 function Card({ title, description, image, amount }) {
   return (
     <div className="card-container  flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-5 w-70 h-30 shadow-sm">

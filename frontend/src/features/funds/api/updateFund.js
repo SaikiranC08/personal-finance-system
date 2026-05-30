@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function updateFund(
 
   fundId,
@@ -54,11 +58,9 @@ export async function updateFund(
 
   if (!response.ok) {
 
-    const errorMessage =
-      await response.text();
-
-    throw new Error(
-      errorMessage
+    throw createApiError(
+      "Failed to update fund",
+      response
     );
   }
 

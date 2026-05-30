@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getCategoryTotals() {
 
   const baseUrl =
@@ -20,8 +24,9 @@ export async function getCategoryTotals() {
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to fetch category totals"
+    throw createApiError(
+      "Failed to fetch category totals",
+      response
     );
   }
 

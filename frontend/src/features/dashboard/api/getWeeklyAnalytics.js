@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getWeeklyAnalytics() {
 
   const baseUrl =
@@ -20,8 +24,9 @@ export async function getWeeklyAnalytics() {
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to fetch weekly analytics"
+    throw createApiError(
+      "Failed to fetch weekly analytics",
+      response
     );
   }
 

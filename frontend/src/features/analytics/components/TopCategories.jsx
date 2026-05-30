@@ -2,10 +2,12 @@ import {
   Circle,
   Film,
   HeartPulse,
+  ListChecks,
   Plane,
   ShoppingBag,
   UtensilsCrossed
 } from "lucide-react";
+import EmptyState from "../../../shared/components/states/EmptyState";
 
 function TopCategories({ categoryTotals }) {
 
@@ -110,9 +112,12 @@ function TopCategories({ categoryTotals }) {
 
       {categories.length === 0 ? (
 
-        <div className="py-10 text-center text-gray-500">
-          No categories found.
-        </div>
+        <EmptyState
+          icon={ListChecks}
+          title="No analytics data"
+          description="Add transactions to view spending insights."
+          compact
+        />
 
       ) : (
 

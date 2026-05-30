@@ -5,6 +5,18 @@ import {
 import {
   deleteFund
 } from "../api/deleteFund";
+import {
+  useState
+} from "react";
+import {
+  useToast
+} from "../../../shared/components/feedback/toastContext";
+import Spinner from "../../../shared/components/states/Spinner";
+import {
+  getFriendlyErrorMessage,
+  handleSessionExpired,
+  isUnauthorizedError
+} from "../../../utils/session";
 function FundCard({ fund }) {
 
   function getStatusColor(status) {
@@ -29,6 +41,12 @@ function FundCard({ fund }) {
   const navigate =
   useNavigate();
 
+  const toast =
+    useToast();
+
+  const [deleting, setDeleting] =
+    useState(false);
+
   async function handleDelete() {
 
   const confirmed =
@@ -42,15 +60,34 @@ function FundCard({ fund }) {
 
   try {
 
+    setDeleting(true);
+
     await deleteFund(
       fund.fundId
     );
+
+    toast.success("Fund deleted successfully");
 
     window.location.reload();
 
   } catch (error) {
 
     console.error(error);
+
+    if (isUnauthorizedError(error)) {
+      handleSessionExpired(toast);
+      return;
+    }
+
+    toast.error(
+      getFriendlyErrorMessage(
+        error,
+        "Failed to delete fund"
+      )
+    );
+  } finally {
+
+    setDeleting(false);
   }
 }
 
@@ -191,13 +228,21 @@ function FundCard({ fund }) {
 
         <button
         onClick={handleDelete}
+          disabled={deleting}
           className="
+            inline-flex items-center gap-1
             text-sm
             text-red-600
             hover:underline
+            disabled:cursor-not-allowed
+            disabled:opacity-50
           "
         >
-          Delete
+          {deleting ? (
+            <Spinner label="Deleting..." />
+          ) : (
+            "Delete"
+          )}
         </button>
 
       </div>

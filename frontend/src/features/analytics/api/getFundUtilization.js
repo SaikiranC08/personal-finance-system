@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getFundUtilization() {
 
   const baseUrl =
@@ -20,8 +24,9 @@ export async function getFundUtilization() {
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to fetch fund utilization"
+    throw createApiError(
+      "Failed to fetch fund utilization",
+      response
     );
   }
 

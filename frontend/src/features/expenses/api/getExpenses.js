@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getExpenses(page = 0, size = 5) {
 
     const baseUrl =
@@ -19,6 +23,13 @@ export async function getExpenses(page = 0, size = 5) {
           }
         );
 
+        if (!response.ok) {
+            throw createApiError(
+              "Failed to fetch expenses",
+              response
+            );
+        }
+
         const data = await response.json();
 
         return {
@@ -30,6 +41,6 @@ export async function getExpenses(page = 0, size = 5) {
 
         console.error("Error fetching expenses:", error);
 
-        throw new Error("Failed to fetch expenses");
+        throw error;
     }
 }

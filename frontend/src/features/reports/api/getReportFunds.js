@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getReportFunds() {
 
   const baseUrl =
@@ -19,8 +23,9 @@ export async function getReportFunds() {
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to fetch funds"
+    throw createApiError(
+      "Failed to fetch funds",
+      response
     );
   }
 

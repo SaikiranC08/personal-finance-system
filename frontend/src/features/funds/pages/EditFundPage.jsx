@@ -24,6 +24,16 @@ import {
 import {
   updateFund
 } from "../api/updateFund";
+import {
+  useToast
+} from "../../../shared/components/feedback/toastContext";
+import ErrorState from "../../../shared/components/states/ErrorState";
+import LoadingPage from "../../../shared/components/states/LoadingPage";
+import {
+  getFriendlyErrorMessage,
+  handleSessionExpired,
+  isUnauthorizedError
+} from "../../../utils/session";
 
 function EditFundPage() {
 
@@ -38,6 +48,15 @@ function EditFundPage() {
 
   const [loading, setLoading] =
     useState(true);
+
+  const [submitting, setSubmitting] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const toast =
+    useToast();
 
   useEffect(() => {
 
@@ -56,6 +75,20 @@ function EditFundPage() {
 
         console.error(error);
 
+        if (isUnauthorizedError(error)) {
+          handleSessionExpired(toast);
+          return;
+        }
+
+        const message =
+          getFriendlyErrorMessage(
+            error,
+            "Failed to fetch fund"
+          );
+
+        setError(message);
+        toast.error(message);
+
       } finally {
 
         setLoading(false);
@@ -64,13 +97,16 @@ function EditFundPage() {
 
     fetchFund();
 
-  }, [fundId]);
+  }, [fundId, toast]);
 
   async function handleUpdate(
     formData
   ) {
 
     try {
+
+      setSubmitting(true);
+      setError("");
 
       await updateFund(
 
@@ -79,22 +115,37 @@ function EditFundPage() {
         formData
       );
 
+      toast.success("Fund updated successfully");
+
       navigate("/funds");
 
     } catch (error) {
 
-      alert(error.message);
-
       console.error(error);
+
+      if (isUnauthorizedError(error)) {
+        handleSessionExpired(toast);
+        return;
+      }
+
+      const message =
+        getFriendlyErrorMessage(
+          error,
+          "Failed to update fund"
+        );
+
+      setError(message);
+      toast.error(message);
+    } finally {
+
+      setSubmitting(false);
     }
   }
 
   if (loading) {
 
     return (
-      <div className="p-8">
-        Loading...
-      </div>
+      <LoadingPage label="Loading fund..." />
     );
   }
 
@@ -129,6 +180,17 @@ function EditFundPage() {
           Update fund details
         </p>
 
+        {error && (
+          <div className="mb-6">
+            <ErrorState
+              title="Fund could not be loaded"
+              description={error}
+              compact
+            />
+          </div>
+        )}
+
+        {fund && (
         <FundForm
 
           initialData={fund}
@@ -136,7 +198,12 @@ function EditFundPage() {
           onSubmit={handleUpdate}
 
           buttonText="Update Fund"
+
+          loading={submitting}
+
+          loadingText="Updating Fund..."
         />
+        )}
 
       </div>
 

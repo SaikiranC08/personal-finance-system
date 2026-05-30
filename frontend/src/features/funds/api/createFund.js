@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function createFund(
   fundData
 ) {
@@ -48,12 +52,13 @@ export async function createFund(
 
   if (!response.ok) {
 
-  const errorMessage =
-    await response.text();
+  const error =
+    createApiError(
+      "Failed to create fund",
+      response
+    );
 
-  throw new Error(
-    errorMessage
-  );
+  throw error;
 }
 
   return await response.json();

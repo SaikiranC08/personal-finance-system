@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 
 import { getOwnerNames } from "../api/getOwnerNames";
+import {
+  useToast
+} from "../../../shared/components/feedback/toastContext";
+import Spinner from "../../../shared/components/states/Spinner";
+import {
+  getFriendlyErrorMessage,
+  handleSessionExpired,
+  isUnauthorizedError
+} from "../../../utils/session";
 
 const categories = [
   { id: 1, name: "Food" },
@@ -14,7 +23,9 @@ const categories = [
 function ExpenseForm({
   onSubmit,
   initialData = {},
-  buttonText = "Create Expense"
+  buttonText = "Create Expense",
+  loading = false,
+  loadingText = "Saving..."
 }){
 
   const [formData, setFormData] = useState({
@@ -43,11 +54,12 @@ function ExpenseForm({
   const [loadingOwners, setLoadingOwners] =
     useState(false);
 
+  const toast =
+    useToast();
+
   useEffect(() => {
 
     if (formData.ownerType !== "OTHER") {
-
-      setOwnerNames([]);
 
       return;
     }
@@ -69,6 +81,18 @@ function ExpenseForm({
 
         setOwnerNames([]);
 
+        if (isUnauthorizedError(error)) {
+          handleSessionExpired(toast);
+          return;
+        }
+
+        toast.error(
+          getFriendlyErrorMessage(
+            error,
+            "Failed to load owner names"
+          )
+        );
+
       } finally {
 
         setLoadingOwners(false);
@@ -77,7 +101,7 @@ function ExpenseForm({
 
     fetchOwnerNames();
 
-  }, [formData.ownerType]);
+  }, [formData.ownerType, toast]);
 
   function handleChange(event) {
 
@@ -98,6 +122,10 @@ function ExpenseForm({
   async function handleSubmit(event) {
 
     event.preventDefault();
+
+    if (loading) {
+      return;
+    }
 
     const finalData = {
 
@@ -147,6 +175,7 @@ function ExpenseForm({
           name="amount"
           value={formData.amount}
           onChange={handleChange}
+          disabled={loading}
           placeholder="Enter amount"
           className="
             w-full
@@ -155,6 +184,8 @@ function ExpenseForm({
             px-4 py-3
             outline-none
             focus:border-green-500
+            disabled:cursor-not-allowed
+            disabled:bg-gray-50
           "
           required
         />
@@ -181,6 +212,7 @@ function ExpenseForm({
           name="date"
           value={formData.date}
           onChange={handleChange}
+          disabled={loading}
           className="
             w-full
             border border-gray-200
@@ -188,6 +220,8 @@ function ExpenseForm({
             px-4 py-3
             outline-none
             focus:border-green-500
+            disabled:cursor-not-allowed
+            disabled:bg-gray-50
           "
           required
         />
@@ -213,6 +247,7 @@ function ExpenseForm({
           name="categoryId"
           value={formData.categoryId}
           onChange={handleChange}
+          disabled={loading}
           className="
             w-full
             border border-gray-200
@@ -220,6 +255,8 @@ function ExpenseForm({
             px-4 py-3
             outline-none
             focus:border-green-500
+            disabled:cursor-not-allowed
+            disabled:bg-gray-50
           "
           required
         >
@@ -262,6 +299,7 @@ function ExpenseForm({
           name="ownerType"
           value={formData.ownerType}
           onChange={handleChange}
+          disabled={loading}
           className="
             w-full
             border border-gray-200
@@ -269,6 +307,8 @@ function ExpenseForm({
             px-4 py-3
             outline-none
             focus:border-green-500
+            disabled:cursor-not-allowed
+            disabled:bg-gray-50
           "
           required
         >
@@ -307,7 +347,7 @@ function ExpenseForm({
               name="ownerName"
               value={formData.ownerName}
               onChange={handleChange}
-              disabled={loadingOwners}
+              disabled={loadingOwners || loading}
               className="
                 w-full
                 border border-gray-200
@@ -316,6 +356,7 @@ function ExpenseForm({
                 outline-none
                 focus:border-green-500
                 disabled:bg-gray-50
+                disabled:cursor-not-allowed
               "
               required
             >
@@ -366,6 +407,7 @@ function ExpenseForm({
           name="description"
           value={formData.description}
           onChange={handleChange}
+          disabled={loading}
           placeholder="Expense description"
           rows="4"
           className="
@@ -375,6 +417,8 @@ function ExpenseForm({
             px-4 py-3
             outline-none
             focus:border-green-500
+            disabled:cursor-not-allowed
+            disabled:bg-gray-50
           "
           required
         />
@@ -385,6 +429,7 @@ function ExpenseForm({
 
       <button
         type="submit"
+        disabled={loading}
         className="
           w-full
           bg-green-600
@@ -394,9 +439,18 @@ function ExpenseForm({
           rounded-xl
           transition
           font-medium
+          disabled:cursor-not-allowed
+          disabled:opacity-60
         "
       >
-        {buttonText}
+        {loading ? (
+          <span className="inline-flex items-center justify-center gap-2">
+            <Spinner />
+            {loadingText}
+          </span>
+        ) : (
+          buttonText
+        )}
       </button>
 
     </form>

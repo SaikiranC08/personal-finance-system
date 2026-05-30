@@ -1,6 +1,7 @@
 import {
   useState
 } from "react";
+import Spinner from "../../../shared/components/states/Spinner";
 
 function FundForm({
 
@@ -8,7 +9,11 @@ function FundForm({
 
   initialData = {},
 
-  buttonText = "Create Fund"
+  buttonText = "Create Fund",
+
+  loading = false,
+
+  loadingText = "Saving..."
 
 }) {
 
@@ -46,6 +51,10 @@ function FundForm({
 
     event.preventDefault();
 
+    if (loading) {
+      return;
+    }
+
     await onSubmit(formData);
   }
 
@@ -81,6 +90,7 @@ function FundForm({
           name="ownerName"
           value={formData.ownerName}
           onChange={handleChange}
+          disabled={loading}
           placeholder="Brother / Family / Friend"
           className="
             w-full
@@ -88,6 +98,8 @@ function FundForm({
             rounded-xl
             px-4 py-3
             outline-none
+            disabled:cursor-not-allowed
+            disabled:bg-gray-50
           "
           required
         />
@@ -112,6 +124,7 @@ function FundForm({
           name="amountReceived"
           value={formData.amountReceived}
           onChange={handleChange}
+          disabled={loading}
           placeholder="Enter amount"
           className="
             w-full
@@ -119,6 +132,8 @@ function FundForm({
             rounded-xl
             px-4 py-3
             outline-none
+            disabled:cursor-not-allowed
+            disabled:bg-gray-50
           "
           required
         />
@@ -143,12 +158,15 @@ function FundForm({
           name="givenDate"
           value={formData.givenDate}
           onChange={handleChange}
+          disabled={loading}
           className="
             w-full
             border border-gray-200
             rounded-xl
             px-4 py-3
             outline-none
+            disabled:cursor-not-allowed
+            disabled:bg-gray-50
           "
           required
         />
@@ -157,6 +175,7 @@ function FundForm({
 
       <button
         type="submit"
+        disabled={loading}
         className="
           w-full
           bg-black
@@ -165,9 +184,18 @@ function FundForm({
           py-3
           rounded-xl
           transition
+          disabled:cursor-not-allowed
+          disabled:opacity-60
         "
       >
-        {buttonText}
+        {loading ? (
+          <span className="inline-flex items-center justify-center gap-2">
+            <Spinner />
+            {loadingText}
+          </span>
+        ) : (
+          buttonText
+        )}
       </button>
 
     </form>

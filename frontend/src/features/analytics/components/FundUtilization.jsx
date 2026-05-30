@@ -1,3 +1,8 @@
+import {
+  WalletCards
+} from "lucide-react";
+import EmptyState from "../../../shared/components/states/EmptyState";
+
 function FundUtilization({ funds }) {
 
   const formatCurrency = (amount) =>
@@ -29,9 +34,12 @@ function FundUtilization({ funds }) {
 
       {funds.length === 0 ? (
 
-        <div className="py-12 text-center text-gray-500">
-          No fund utilization found.
-        </div>
+        <EmptyState
+          icon={WalletCards}
+          title="No funds available"
+          description="Create your first shared fund to view utilization."
+          compact
+        />
 
       ) : (
 

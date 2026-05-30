@@ -23,6 +23,20 @@ import {
   getFundExpenses
 
 } from "../api/getFundExpenses";
+import {
+  ReceiptText
+} from "lucide-react";
+import {
+  useToast
+} from "../../../shared/components/feedback/toastContext";
+import EmptyState from "../../../shared/components/states/EmptyState";
+import ErrorState from "../../../shared/components/states/ErrorState";
+import LoadingPage from "../../../shared/components/states/LoadingPage";
+import {
+  getFriendlyErrorMessage,
+  handleSessionExpired,
+  isUnauthorizedError
+} from "../../../utils/session";
 
 function FundDetailsPage() {
 
@@ -37,6 +51,12 @@ function FundDetailsPage() {
 
   const [loading, setLoading] =
     useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const toast =
+    useToast();
 
   useEffect(() => {
 
@@ -62,6 +82,20 @@ function FundDetailsPage() {
 
         console.error(error);
 
+        if (isUnauthorizedError(error)) {
+          handleSessionExpired(toast);
+          return;
+        }
+
+        const message =
+          getFriendlyErrorMessage(
+            error,
+            "Failed to load fund details"
+          );
+
+        setError(message);
+        toast.error(message);
+
       } finally {
 
         setLoading(false);
@@ -70,13 +104,23 @@ function FundDetailsPage() {
 
     fetchData();
 
-  }, [fundId]);
+  }, [fundId, toast]);
 
   if (loading) {
 
     return (
-      <div className="p-8">
-        Loading...
+      <LoadingPage label="Fetching fund details..." />
+    );
+  }
+
+  if (error || !fund) {
+
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <ErrorState
+          title="Failed to load fund details"
+          description={error || "Something went wrong"}
+        />
       </div>
     );
   }
@@ -270,6 +314,25 @@ function FundDetailsPage() {
           </thead>
 
           <tbody>
+
+            {expenses.length === 0 && (
+
+              <tr>
+
+                <td
+                  colSpan="4"
+                  className="px-6 py-8"
+                >
+                  <EmptyState
+                    icon={ReceiptText}
+                    title="No expenses found"
+                    description="Transactions linked to this fund will appear here."
+                    compact
+                  />
+                </td>
+
+              </tr>
+            )}
 
             {expenses.map((expense) => (
 

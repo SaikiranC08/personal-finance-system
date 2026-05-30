@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function getMonthlyAnalytics() {
 
   const baseUrl =
@@ -20,8 +24,9 @@ export async function getMonthlyAnalytics() {
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to fetch monthly analytics"
+    throw createApiError(
+      "Failed to fetch monthly analytics",
+      response
     );
   }
 

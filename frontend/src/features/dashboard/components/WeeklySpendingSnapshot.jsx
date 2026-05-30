@@ -7,6 +7,10 @@ import {
   XAxis,
   YAxis
 } from "recharts";
+import {
+  ChartNoAxesColumnIncreasing
+} from "lucide-react";
+import EmptyState from "../../../shared/components/states/EmptyState";
 
 function WeeklySpendingSnapshot({ weeklyAnalytics }) {
 
@@ -45,8 +49,13 @@ function WeeklySpendingSnapshot({ weeklyAnalytics }) {
 
       {data.length === 0 ? (
 
-        <div className="h-56 flex items-center justify-center text-gray-500">
-          No weekly spending data found.
+        <div className="h-56">
+          <EmptyState
+            icon={ChartNoAxesColumnIncreasing}
+            title="No analytics data"
+            description="Add transactions to view spending insights."
+            compact
+          />
         </div>
 
       ) : (

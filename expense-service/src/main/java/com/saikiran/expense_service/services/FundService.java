@@ -176,11 +176,22 @@ public class FundService {
 
     }
 
-    public List<FundResponse> getFundList(String userId){
-        List<FundInfo> fundInfoList = fundRepository.findFundInfoByUserId(userId);
+    public List<FundResponse> getFundList(String userId) {
+
+        List<FundInfo> fundInfoList =
+                fundRepository.findFundInfoByUserId(userId);
 
         return fundInfoList.stream()
+
+                           // REMOVE SELF FUND
+                           .filter(fund ->
+                                   !"SELF".equalsIgnoreCase(
+                                           fund.getOwnerType()
+                                   )
+                           )
+
                            .map(fundMapper::toFundResponse)
+
                            .toList();
     }
 

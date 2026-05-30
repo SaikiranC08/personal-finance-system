@@ -2,10 +2,12 @@ import {
   Circle,
   Film,
   HeartPulse,
+  ReceiptText,
   Plane,
   ShoppingBag,
   UtensilsCrossed
 } from "lucide-react";
+import EmptyState from "../../../shared/components/states/EmptyState";
 
 function RecentExpenses({ expenses }) {
 
@@ -89,9 +91,12 @@ function RecentExpenses({ expenses }) {
 
       {expenses.length === 0 ? (
 
-        <div className="py-10 text-center text-gray-500">
-          No recent expenses found.
-        </div>
+        <EmptyState
+          icon={ReceiptText}
+          title="No recent activity"
+          description="Add transactions to see your latest money movement here."
+          compact
+        />
 
       ) : (
 

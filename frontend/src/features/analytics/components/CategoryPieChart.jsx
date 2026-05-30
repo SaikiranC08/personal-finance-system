@@ -5,6 +5,10 @@ import {
   ResponsiveContainer,
   Tooltip
 } from "recharts";
+import {
+  ChartPie
+} from "lucide-react";
+import EmptyState from "../../../shared/components/states/EmptyState";
 
 function CategoryPieChart({ categoryTotals }) {
 
@@ -61,8 +65,13 @@ function CategoryPieChart({ categoryTotals }) {
 
       {data.length === 0 ? (
 
-        <div className="h-80 flex items-center justify-center text-gray-500">
-          No category data found.
+        <div className="h-80">
+          <EmptyState
+            icon={ChartPie}
+            title="No analytics data"
+            description="Add transactions to view spending insights."
+            compact
+          />
         </div>
 
       ) : (

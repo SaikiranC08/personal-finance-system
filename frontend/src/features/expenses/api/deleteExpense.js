@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function deleteExpense(
   expenseId
 ) {
@@ -25,8 +29,9 @@ export async function deleteExpense(
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to delete expense"
+    throw createApiError(
+      "Failed to delete expense",
+      response
     );
   }
 

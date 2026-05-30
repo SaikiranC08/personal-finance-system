@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function downloadExpenseReport({
   startDate,
   endDate
@@ -28,8 +32,9 @@ export async function downloadExpenseReport({
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to export expense report"
+    throw createApiError(
+      "Failed to export expense report",
+      response
     );
   }
 

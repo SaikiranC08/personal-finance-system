@@ -1,7 +1,9 @@
 package org.example.Controller;
 
+import lombok.NonNull;
 import org.example.entities.RefreshToken;
 import org.example.model.UserInfoDto;
+import org.example.request.ChangePasswordRequest;
 import org.example.response.JwtResponseDTO;
 import org.example.services.JwtService;
 import org.example.services.RefreshTokenService;
@@ -9,6 +11,7 @@ import org.example.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,6 +62,23 @@ public class AuthController {
             System.out.println("Exception in signup: " + e.getMessage());
             return new ResponseEntity<>("Exception in User Service: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            Authentication authentication,
+            @RequestBody ChangePasswordRequest request
+    ) {
+        String username =
+                authentication.getName();
+
+        request.setUsername(username);
+
+        return ResponseEntity.ok(
+                userDetailsService.changePassword(
+                        request
+                )
+        );
     }
     
     // Debug endpoint to check users in database

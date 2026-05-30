@@ -1,3 +1,7 @@
+import {
+  createApiError
+} from "../../../utils/session";
+
 export async function downloadFundReport(fundId) {
 
   const baseUrl =
@@ -19,8 +23,9 @@ export async function downloadFundReport(fundId) {
 
   if (!response.ok) {
 
-    throw new Error(
-      "Failed to export fund utilization report"
+    throw createApiError(
+      "Failed to export fund utilization report",
+      response
     );
   }
 
