@@ -1,26 +1,45 @@
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import { Outlet } from "react-router-dom";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 
 function DashboardLayout() {
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
     return (
 
-        <div className="flex h-screen bg-gray-100">
+        <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-950">
 
-            {/* Sidebar */}
-            <Sidebar />
+            <Sidebar
+                isCollapsed={isSidebarCollapsed}
+                isOpen={isSidebarOpen}
+                onCollapseToggle={() => setIsSidebarCollapsed((current) => !current)}
+                onOpenChange={setIsSidebarOpen}
+            />
 
-            {/* Right Side */}
-            <div className="flex flex-col flex-1">
+            {!isSidebarOpen && (
+                <button
+                    type="button"
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="fixed top-4 left-4 z-30 flex size-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm md:hidden"
+                    aria-label="Open sidebar"
+                >
+                    <Menu className="size-5" aria-hidden="true" />
+                </button>
+            )}
 
-                {/* Navbar */}
+            <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+
                 <Navbar />
 
-                {/* Dynamic Pages */}
-                <main className="flex-1 p-6 overflow-auto">
+                <main className="flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-8">
 
-                    <Outlet />
+                    <div className="mx-auto w-full max-w-7xl">
+                        <Outlet />
+                    </div>
 
                 </main>
 
