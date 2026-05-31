@@ -39,11 +39,7 @@ public class GlobalExceptionHandler {
 
     // FALLBACK (never expose internals)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGeneric(Exception ex) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Unexpected error occurred");
-    }
+    public ResponseEntity<String> handleGenericcatch (Exception e) { e.printStackTrace(); return ResponseEntity.internalServerError() .body(e.getMessage()); }
 
     @ExceptionHandler(
             DuplicateFundException.class
