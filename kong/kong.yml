@@ -27,4 +27,4 @@ services:
           - name: custom-auth
 
             config:
-              auth_service_url: "http://auth-service:8080/v1/validate"
+              auth_service_url: http://auth-service:8080/v1/validate

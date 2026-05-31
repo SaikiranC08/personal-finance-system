@@ -49,7 +49,7 @@ services:
       MYSQL_DATABASE: ${MYSQL_AUTH_DB}
 
     ports:
-      - "3307:3306"
+      - "${MYSQL_AUTH_PORT}:3306"
 
     volumes:
       - auth_mysql_data:/var/lib/mysql
@@ -68,10 +68,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_EXPENSE_DB}
-      FRONTEND_URL: ${FRONTEND_URL}
 
     ports:
-      - "3308:3306"
+      - "${MYSQL_EXPENSE_PORT}:3306"
 
     volumes:
       - expense_mysql_data:/var/lib/mysql
@@ -89,13 +88,14 @@ services:
     container_name: auth-service
 
     environment:
-      MYSQL_HOST: mysql-auth
-      MYSQL_PORT: 3306
+      MYSQL_HOST: ${AUTH_MYSQL_HOST}
+      MYSQL_PORT: ${AUTH_MYSQL_PORT}
       MYSQL_DB: ${MYSQL_AUTH_DB}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
       JWT_SECRET: ${JWT_SECRET}
+
       FRONTEND_URL: ${FRONTEND_URL}
 
     ports:
@@ -112,8 +112,8 @@ services:
     container_name: expense-service
 
     environment:
-      MYSQL_HOST: mysql-expense
-      MYSQL_PORT: 3306
+      MYSQL_HOST: ${EXPENSE_MYSQL_HOST}
+      MYSQL_PORT: ${EXPENSE_MYSQL_PORT}
       MYSQL_DB: ${MYSQL_EXPENSE_DB}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
