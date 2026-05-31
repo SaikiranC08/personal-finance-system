@@ -1,30 +1,28 @@
-_format_version: "3.0"
 
-services:
+  _format_version: "3.0"
 
-  - name: auth-service
-    url: http://auth-service:8080
+  services:
 
-    routes:
-      - name: auth-route
-        paths:
-          - /auth
-        strip_path: true
+    - name: auth-service
+      url: https://fundflow-auth-service.onrender.com
 
-  - name: expense-service
-    url: http://expense-service:9898
+      routes:
+        - name: auth-route
+          paths:
+            - /auth
+          strip_path: true
 
-    routes:
-      - name: expense-route
+    - name: expense-service
+      url: https://fundflow-expense-service.onrender.com
 
-        paths:
-          - /expense
+      routes:
+        - name: expense-route
+          paths:
+            - /expense
+          strip_path: true
 
-        strip_path: true
+          plugins:
+            - name: custom-auth
 
-        plugins:
-
-          - name: custom-auth
-
-            config:
-              auth_service_url: http://auth-service:8080/v1/validate
+              config:
+                auth_service_url: https://fundflow-auth-service.onrender.com/v1/validate
